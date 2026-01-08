@@ -1,5 +1,5 @@
 # Slap it!
-A simple decals addon for Blender 2.8+
+A simple decals addon for Blender 4.4+
 
 Demo: https://www.youtube.com/watch?v=meq--NcBFFM
 
