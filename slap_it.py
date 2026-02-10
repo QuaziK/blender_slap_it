@@ -59,6 +59,8 @@ class SlapItOperator(bpy.types.Operator):
         C = bpy.context
         target_object = C.object
         selected = C.selected_objects
+        # get collection of decal        
+        decal_collection = selected[0].users_collection[0]
 
         selected.remove(target_object)
         source_decal_object = selected[0]
@@ -68,6 +70,14 @@ class SlapItOperator(bpy.types.Operator):
         bpy.ops.object.duplicate()
         decal_object = C.object
         bpy.ops.object.convert(target='MESH')
+        
+        # move slap decal from target object collection to decal collection
+        # unlink slap decal from all collections
+        for collection in decal_object.users_collection:
+            collection.objects.unlink(decal_object)
+        
+        # link slap decal to decal collection
+        decal_collection.objects.link(decal_object)
 
         bpy.ops.object.select_all(action='DESELECT')
 
@@ -141,6 +151,13 @@ class SlapItOperator(bpy.types.Operator):
 
         # shade auto smooth workaround in >4.1
         bpy.ops.object.modifier_add_node_group(asset_library_type='ESSENTIALS', asset_library_identifier="", relative_asset_identifier="geometry_nodes/smooth_by_angle.blend/NodeTree/Smooth by Angle")
+
+        # add shrinkwrap target
+        bpy.ops.object.modifier_add(type="SHRINKWRAP")
+        mod = decal_object.modifiers["Shrinkwrap"]
+        mod.target = target_object
+        mod.offset = 0.01
+        mod.wrap_method = "TARGET_PROJECT"
 
         #turns off shadow on the decal
         if bpy.context.scene.render.engine == "CYCLES":
